@@ -10,13 +10,23 @@ struct Cli {
 
 fn main() {
     let args = Cli::parse();
-    let file = std::fs::File::open(&args.path).expect("could not be opened");
-    let content = std::io::BufReader::new(file);
-//     let content = std::fs::read_to_string(&args.path).expect("could not read the file");
-    for line in content.lines() {
-        let line = line.expect("could not read line");
-        if line.contains(&args.pattern) {
-            println!("{}", line);
+    let file_result = std::fs::File::open(&args.path);
+    match file_result {
+        Ok(file) => {
+            let content = std::io::BufReader::new(file);
+            for line_result in content.lines() {
+                match line_result {
+                    Ok(text) => {
+                        if text.contains(&args.pattern) {
+                            println!("Fonded: {}", text);
+                        }
+                    }
+                    Err(error) => {
+                        println!("Error reading the line {}", error);
+                    }
+                }
+            }
         }
-    }
+        Err(error) => { panic!("Can't deal with {}, just exit here", error); }
+    };
 }
