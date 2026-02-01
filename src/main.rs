@@ -1,4 +1,5 @@
 use std::io::BufRead;
+use std::fs::File;
 
 use clap::Parser;
 
@@ -10,23 +11,14 @@ struct Cli {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Cli::parse();
-    let file_result = std::fs::File::open(&args.path);
-    match file_result {
-        Ok(file) => {
-            let content = std::io::BufReader::new(file);
-            for line_result in content.lines() {
-                match line_result {
-                    Ok(text) => {
-                        if text.contains(&args.pattern) {
-                            println!("Fonded: {}", text);
-                        }
-                    }
-                    Err(error) => {
-                        println!("Error reading the line {}", error);
-                    }
-                }
-            }
+    let file = File::open(&args.path)?;
+    let reader = std::io::BufReader::new(file);
+
+    for line in reader.lines() {
+        let text = line?;
+        if text.contains(&args.pattern) {
+            println!("Fonded: {}", text);
         }
-        Err(error) => { panic!("Can't deal with {}, just exit here", error); }
-    };
+    }
+    Ok(())
 }
