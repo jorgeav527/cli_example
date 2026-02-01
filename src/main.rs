@@ -8,7 +8,7 @@ struct Cli {
     path: std::path::PathBuf,
 }
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Cli::parse();
     let file_result = std::fs::File::open(&args.path);
     match file_result {
